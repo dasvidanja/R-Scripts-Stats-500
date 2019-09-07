@@ -1,0 +1,22 @@
+#Script with comments
+//Open data from correct package
+> data(teengamb, package="faraway")
+
+//Get the whole data to display (optional)
+> teengamb
+
+//Change 0 to male, and 1 to female
+> teengamb$sex[teengamb$sex ==1] <- "FEMALE"
+> teengamb
+
+//Change sex from quantitative to categorical
+teengamb$sex <- factor(teengamb$sex)
+
+	//to check before and after change
+	> summary(teengamb$sex)
+	
+//Get a numerical summary of the data 
+> summary(teengamb)
+
+#Scripts W/o Comments
+
