@@ -5,11 +5,16 @@
 //Get the whole data to display (optional)
 > teengamb
 
+//Help function to get some information about the data, or other functions
+>help(teengamb)
+>help(histogram)
+
+
 //Change 0 to male, and 1 to female
 > teengamb$sex[teengamb$sex ==1] <- "FEMALE"
 > teengamb
 
-//Change sex from quantitative to categorical
+//Change sex from quantitative to categorical through factor
 teengamb$sex <- factor(teengamb$sex)
 
 	//to check before and after change
@@ -18,5 +23,63 @@ teengamb$sex <- factor(teengamb$sex)
 //Get a numerical summary of the data 
 > summary(teengamb)
 
+//Plot a Index graph, can be both  numerical or categorical
+> plot(sort(teengamb$sex),ylab="Sorted Sex Factor")
+> plot(sort(teengamb$status),ylab="Sorted Status Factor")
+> plot(sort(teengamb$verbal),ylab="Sorted verbal Factor")
+> plot(sort(teengamb$gamble),ylab="Sorted Gamble Factor")
+>plot(sort(teengamb$income),ylab="Sorted Income Factor")
+
+//Plot Desnity Kernel hisotgram , must be numerical
+> plot(density(teengamb$status,na.rm=TRUE), main="")
+> plot(density(teengamb$income,na.rm=TRUE), main="")
+> plot(density(teengamb$verbal,na.rm=TRUE), main="")
+> plot(density(teengamb$gamble,na.rm=TRUE), main="")
+
+//Plot a Scatter Plot, X (input/independent) Y (output/dependent) variable
+ plot(status ~income, teengamb)
+> plot(income ~status, teengamb)
+> plot(status ~verbal, teengamb)
+> plot(income ~verbal, teengamb)
+> plot(gamble ~income, teengamb)
+> plot(gamble ~status, teengamb)
+> plot(status ~gamble, teengamb)
+> plot(gamble ~verbal, teengamb)
+> plot(status ~sex, teengamb)
+> plot(income ~sex, teengamb)
+
+//Sort something out
+> sort(teengamb$income)
+
+//Additional Numerical summary
+>a= teengamb$income
+>median(a)
+>mode(a)
+>sd(a)
+>var(a)
+>range(a)
+>length(a)
+>dim(a) //vector, matrix
+>quantile(a)
+
+//Plot graph & get regression lines
+>plot(verbal ~status, teengamb)
+>abline(lm(verbal ~status, teengamb))
+
+//COLUMNS & ROWS
+//Select Verbal column
+>teengamb[4]
+
+//Select 4th row
+>> teengamb[4,]
+
+//Select multiple Rows
+> teengamb[c(31,34),]
+
+//Select rows according to a specific parameter
+> teengamb[teengamb$verbal<2,]
+> teengamb[teengamb$verbal<=2,]
+
 #Scripts W/o Comments
+//Just remove ">" from commands :)
 
