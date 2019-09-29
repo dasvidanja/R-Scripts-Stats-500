@@ -1,3 +1,270 @@
 //Code for Homework 2
+PART- A
+//Open File
+ require(faraway)
+ data(uswages, package = "faraway")
+
 //Clean data, get out all negative values that have an experience of negative nature
-> uswages <-[uswages$exper>=0,]
+uswages <-[uswages$exper>=0,]
+
+//Fit regression model
+linearModel <- lm(wage ~ educ+ exper, data = uswages)
+
+//Summary of linear model
+lineraModel
+summary(linearModel)
+
+//Percentage of variation in the response (a.k.a coefficient of determination).
+//This is the multiple R squared located in the summary
+summary(linearModel)
+
+//Residuals
+//Provides maximum residual
+max(linearModel$residuals)
+
+//Provides case number, and index position
+which.max(linearModel$residuals)
+
+//Provides case number and amount 
+linearModel$residuals[1550]
+
+//Mean and Median of residuals
+mean(linearModel$residuals)
+
+median(linearModel$residuals)
+
+//Summary of residuals provides mean and median too
+summary(linearModel$residuals)
+
+//The mean and median tell us about the distribution: normal, right-skewed, left-skewed, ..
+
+//To check the difference in wages from people with the same education but 1 year diff in experience
+//Just look at the model (summmary(linearModel), and look at the beta for exper (~9.33)
+
+//To check the different functions that come with your linearModel, a list of operations
+names(linearModel)
+
+//Compute correlation of residuals with fitted values
+
+//residuals
+res = linearModel$residuals
+
+//fitted values
+fit = linearModel$fitted
+
+//Correlation
+cor = cor(res, fit) *note, this is the same as cor(fit, res)
+
+//Summary of correlation
+summary(cor)
+
+//Plot fit vs residual
+plot(fit, resid)
+
+//Meaning of correlation using geometric interpretation of sum of squares
+//Not super sure, but we can view the correlation as cos(theta) , where 
+//theta is our angle between two vectors (fitted vs actual). If they are 
+//orthogonal to one another we should have a correlation of 1, else, 0.
+//Perhpas, I do not understand this relationship extremely well. I will go to 
+//office hours and clarify.
+
+PART -2
+//Create a 10  x 3 matrix
+X = matrix( 
++ c(1,2,-2,1,-1,-2,1,3,-2,1,3,3,1,2,3,1,1,3,1,0,0,1,0,0,1,-1,0,1,0,1),
++ nrow=10,
++ ncol=3,
++ byrow =TRUE)
+
+//Create a 3 x 1 matrix
+B = matrix(
+c(1,-1,2),
+nrow = 3,
+ncol = 1,
+byrow =  TRUE)
+
+//Create a 10 x 1 matrix whose entries are IID standard normal
+E= matrix( rnorm(10*1,mean=0,sd=1), 10, 1) 
+
+//Set an equation in terms of Y, %*% matrix multiplication
+Y= X%*%B + E
+
+//Calculate Beta
+//Formula = (Xt * X)^-1 * Xt * Y
+xtx = t(X) %*% X
+xtxi = solve(xtx)
+Beta = xtxi %*% t(X) %*% Y
+
+//True Variance of beta, 3 x 3 matrix (look at the diagonal for specific betas)
+//Formula var(beta) = (Xt * X)^-1 * sigma^2, *note sigma^2 == 1 in this case
+xtx = t(X) %*% X
+xtxi = solve(xtx)
+truVarBeta = xtxi
+
+//Sigma^2 estimate through resiudals, EtE = RSS / n -p , 
+//RSS = residuals sum of squeres, n-p = degrees of freedom
+rss = sum((Y-X%*%Beta)^2)
+n_minus_p = 10 -3 
+sigma2 = rss/ n_minus_p
+sigma2
+
+//1000 estimates for Beta1 
+beta1= replicate(n =1000,{
+
+//new e estimation
+E=matrix( rnorm(10*1,mean=0,sd=1), 10, 1)
+
+//reset Y
+Y = X%*%B +E
+
+//Calculate beta
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+
+//Store first entry
+beta01 = beta[1] , *note: pay attention to index beta[1]
+})
+
+//Check output
+beta1
+
+//Create histogram
+hist(beta1)
+
+//Check variance of beta1 vs the variance of beta in question 2 (first entry) should be very close
+var(beta1)
+
+
+//1000 estimation for beta2
+beta2= replicate(n =1000,{
+E=matrix( rnorm(10*1,mean=0,sd=1), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+beta02 = beta[2]})
+beta2
+hist(beta2)
+var(beta2)
+
+//1000 estimation for beta3
+beta3= replicate(n =1000,{
+E=matrix( rnorm(10*1,mean=0,sd=1), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+beta03 = beta[3]})
+beta3
+hist(beta3)
+var(beta3)
+
+//Estimate beta and sigma^2 1000 times 
+sigma_rep=replicate(n =1000,{
+E=matrix( rnorm(10*1,mean=0,sd=1), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+rss = sum((Y-X%*%beta)^2)
+sigma2= rss/7})
+
+hist(sigma_rep)
+//Mean tells us that this is a close estimate of the real sigma^2 which is one 
+mean(sigma_rep)
+
+//Use a distribution with expectation 0, and variance 1 (uniform distribution)
+//All of the three Betas (1,2,3) from #4 & #5 share almost identical variances. 
+//We are using similar distributions.Hence, the answers do not change by much. 
+
+//Re-estimate with unif distribution beta 1
+beta1= replicate(n =1000,{
+E=matrix( runif(10*1, -1.74, 1.74), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+beta01 = beta[1]})
+hist(beta1)
+var(beta1)
+
+
+//Re-estimate with unif distribution beta 2
+beta2= replicate(n =1000,{
+E=matrix( runif(10*1, -1.74, 1.74), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+beta02 = beta[2]})
+hist(beta2)
+var(beta2)
+
+
+//Re-estimate with unif distribution beta 3
+beta3= replicate(n =1000,{
+E=matrix( runif(10*1, -1.74, 1.74), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+beta03 = beta[3]})
+hist(beta3)
+var(beta3)
+
+
+//Sigma^2
+sigma_rep=replicate(n =1000,{
+E=matrix( runif(10*1, -1.74, 1.74), 10, 1)
+Y = X%*%B +E
+xtx <- t(X) %*% X
+Xtxi <- solve(xtx)
+beta <- Xtxi %*% t(X)%*% Y
+rss = sum((Y-X%*%beta)^2)
+sigma2= rss/7})
+
+hist(sigma_rep)
+mean(sigma_rep)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
