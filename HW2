@@ -108,6 +108,10 @@ n_minus_p = 10 -3
 sigma2 = rss/ n_minus_p
 sigma2
 
+//RSS IS ALSO EQUAL TO: e^t * e  (where e is hat e (estimate one))
+estimateE  = Y-X%*%Beta
+RSS  = t(estimateE) %*% estimateE
+
 //1000 estimates for Beta1 
 beta1= replicate(n =1000,{
 
@@ -226,45 +230,3 @@ sigma2= rss/7})
 
 hist(sigma_rep)
 mean(sigma_rep)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
