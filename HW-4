@@ -1,0 +1,70 @@
+#Load Data
+data(longley)
+longley
+
+#Fit linear model with all of the predictors
+lmod= lm(Employed ~ .,longley)
+summary(lmod)
+
+#Matrix of lmod (without the intercept)
+x = model.matrix(lmod)[,-1]
+
+#Eigenvalues
+e= eigen(t(x)%*%x)
+e$val
+
+#Condition numbers 
+round(sqrt(max(e$val)/e$val), 3)
+
+##
+Conclusion, by looking at the condition numbers (k) we are able to see multiple k’s >30.
+The presence of such values indicated multicollinearity. Problems are being caused by more 
+than one linear combination. Hence, our X^tX is close to being singular and our model is less accurate. 
+##
+
+#Correlation, #same, round(cor(x),2)
+round(cor(longley[,-7]),3)
+
+##
+We are able to see a high correlation (close to 1) between GNP, GNP.deflator, Population, and Year 
+which explain the previous encountered high k values. Such findings indicate large pairwise collinearity. 
+##
+
+#VIF
+require(faraway)
+vif(x)
+
+##
+We can see that we have extremely large values for what it pertains: GPN, Year, Population, GPN.deflator. 
+There is quite a lot of variance inflation. The interpretation can be made by taking  the square root of the VIF. 
+The result is an estimate of the std without collinearity. For example, sqrt (VIF(GNP)) ~ 42.30, which means that 
+the standard error for GNP is 42.3  times larger than it would have been without collinearity. 
+##
+
+#New Model with reduced collinearity 
+##(I decided to pick GPN.deflator given it has the lowest VIF of all correlated predictors.)
+
+lmod= lm(Employed ~ GNP.deflator+Unemployed+Armed.Forces, longley)
+summary(lmod)
+
+#Matrix of new linear model
+x= model.matrix(lmod)[,-1]
+
+#Eivgenvalues
+e= eigen(t(x)%*%x)
+#Condition numbers
+round(sqrt(max(e$val)/e$val),3)
+
+#correlation 
+round(cor(x),3)
+vif(x)
+
+##
+We can definitely see that the values present in the condition number, correlation matrix, and variance 
+inflation factor are not as extreme as in the full model. 
+
+In conclusion, comparing the two models we notice that R^2 has slightly decreased, but still quite close
+to the original model. The major difference is an increase in the significance level of our regression 
+coefficients. Furthermore, the  F-statistic allows to reject the null hypothesis (all are zero) with an 
+alpha 6-10 % . Hence, the predictors are significant and our model is overall a better one. 
+##
