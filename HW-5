@@ -1,0 +1,119 @@
+#Question 1
+#Load data
+require('faraway')
+data(sat)
+head(sat)
+
+#OLS FIT
+ols_fit = lm(total~ takers+ratio+salary+expend,data=sat)
+summary(ols_fit)
+
+#Least Absolute Deviation (LAD)
+install.packages("quantreg")
+require(quantreg)
+
+lad_fit= rq(total ~ takers+ratio+salary+expend, data = sat)
+summary(lad_fit)
+
+summary.rq(lad_fit,se = 'nid')
+
+#Huber's Robust Regression
+require(MASS)
+huber_fit = rlm(total~ takers+ratio+salary+expend, data=sat)
+summary(huber_fit)
+
+#p-values for Huber's regression 
+2*pt(-13.6470, df=45)
+2*pt(-1.6894, df=45)
+2*pt(1-pt(0.9293, df=45))
+2*pt(1-pt(0.3935, df=45))
+
+#Comments
+Comments on the different outputs:
+OLS and HUBER are quite close to each other
+The intercept and the values takers, salary, and expand  are quite close to each other for what it pertains the actual 
+coefficients, standard errors, and t-values.Ratio seems to be a bit different for what it pertains coefficient and t-value. 
+A further insight from the t value allows to see the p value of ratio for both models, and they are quite different: 0.09 vs 
+0.266. Almost three times difference from each other.The rest is more or less the same.
+
+LAD differs from OLS and Huber in quite a few aspects. Most of the coefficients are all different from one another, as a result,
+I focused on more broad perspectives. Takers seems to be significant in this model as well as in the OLS and Huber’s. Ratio does
+have a p value of 0.03, which would allow us to reject the null hypothesis, in contrast to the OLS and Huber model where the p 
+value is 0.266 & 0.09. Expend has a negative coefficient, unlike the other two models, but this predictor doesn't seem to be of 
+any significance (p value  0.9). Salary has different numbers, but they all seem to agree in the definitive direction in all 
+three models. 
+
+#Question 2
+#Load data
+require('faraway')
+data(prostate)
+head(prostate)
+
+#Backward Substitution
+#Start with a model with all predictors, remove insignificant predictors over alpha = 0.05
+#All predicotrs
+lmod = lm(lpsa~lcavol+lweight+age+lbph+svi+lcp+gleason+pgg45, prostate)
+summary(lmod)
+
+#Remove non-significant predictors
+lmod <- update(lmod, . ~ . - gleason)
+lmod <- update(lmod, . ~ . - lcp)
+lmod <- update(lmod, . ~ . - pgg45)
+lmod <- update(lmod, . ~ . - age)
+lmod <- update(lmod, . ~ . -lbph)
+
+summary(lmod)
+Call:
+lm(formula = lpsa ~ lcavol + lweight + svi, data = prostate)
+#The best model from backward substitution has lcavol, lweight, and svi
+
+#Adjusted R^2
+install.packages('leaps')
+require(leaps)
+
+#regsubsets table for both adjusted R^2 & Mallow's Cp
+b = regsubsets(lpsa ~., data = prostate)
+rs = summary(b)
+rs
+
+#Plot
+plot(2:9, rs$adjr2,xlab="No. of parameters", ylab="Adjusted R Square")
+
+#Number of predictors to put in model
+which.max(rs$adjr2)
+
+#Best model, has 7 predictors refer to regsub table to pick the one with highest *
+lmod = lm(lpsa~lcavol+lweight+age+lbph+svi+lcp+pgg45, prostate)
+summary(lmod)
+
+#Mallow's Cp
+library(leaps)
+
+#(same as in bacwardd substitution)
+b = regsubsets(lpsa~., data = prostate)
+rs = summary(b)
+
+#Plot, 2:9 predictors without intercept
+plot(2:9, rs$cp, xlab = "No. of Parameters", ylab= "Cp Statistic")
+abline(0,1)
+
+#For a better plot  (adjust limits 1(start), 26 (max value in y)
+plot(2:9, rs$cp, xlab = "No. of Parameters", ylab= "Cp Statistic", ylim=c(1,26))
+abline(0,1)
+
+#From the graph you can deduct the points on the line are 5
+#Look at the regsubsets and pick the 5 with the highest *
+
+#Best model
+lmod = lm(lpsa~lcavol+lweight+svi+lbph+age, prostate)
+summary(lmod)
+
+#Comments, the simplest model is backward substitution given that it only has 3 regressors, 
+yet the R^2 of this model is the lowest one among all three models (original, adjusted, M Cp). 
+Additionally, the coefficients, std error, and  p-values of backward substitution are extremely 
+close to those in the original model and all significant. Adjusted R^2 has a  much closer R^2, 
+coefficients, and p-values to the original model. There is a slight difference for what it pertains 
+the significance of pgg45. Additionally, gleason is not included in this model. Mallow’ Cp coefficients, 
+and p-values do vary a bit. The major difference among the model is the significance of the predictors. 
+Backward substitution has all significant ones, whereas adjusted R^2 and Mallow’s Cp have insignificant 
+predictors with p values above alpha = 5%.  
